@@ -3,9 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Sneaky Snake !</title>
+  <style>
+    .controls {
+      display: grid;
+      grid-template:
+            ". up ." 25px
+            "left center right" 25px
+            ". down ." 25px / 50px 50px 50px;
+    }
+
+    .control {
+      grid-area: var(--cell);
+    }
+    .output {
+      font-family: monospace
+    }
+  </style>
 </head>
 <body>
+<div class="controls">
+  <button class="control" onclick="game.tick()" style="--cell:center">Tick</button>
+  <button class="control" onclick="game.changeDirection('up')" style="--cell:up">Up</button>
+  <button class="control" onclick="game.changeDirection('down')" style="--cell:down">Down</button>
+  <button class="control" onclick="game.changeDirection('left')" style="--cell:left">Left</button>
+  <button class="control" onclick="game.changeDirection('right')" style="--cell:right">Right</button>
+</div>
+<pre class="output" id="output"></pre>
+<script src="dist/index.js"></script>
+<script>
+  const output = document.getElementById('output')
 
-<script src="index.js"></script>
+  const afterTick = (direction, snake) => {
+    output.innerText += `${JSON.stringify(snake[0])} ${direction}\n`
+  }
+
+  let game = new Game({afterTick})
+</script>
 </body>
 </html>
