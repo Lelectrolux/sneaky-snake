@@ -34,7 +34,7 @@
 <main class="output-2d" id="output-2d"></main>
 <script src="dist/index.js"></script>
 <script>
-  const afterTick = ({direction, snake: [head,], apple}) => console.log(`${direction[0]} h[${head.x},${head.y}] a[${apple.x},${apple.y}]`)
+  const afterTick = ({direction, snake: [head,], apple}) => console.log(`${direction[0]} h[${head.direction[0]},${head.x},${head.y}] a[${apple.x},${apple.y}]`)
   const directionChanged = ({ direction }) => console.log(`Going ${direction} now`)
   let game = new Game()
   game.events.on('afterTick', afterTick)

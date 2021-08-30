@@ -1,7 +1,8 @@
 /**
  * @typedef {'up'|'down'|'left'|'right'} Direction
  * @typedef {{x: number, y: number}} Position
- * @typedef {Position[]} Snake
+ * @typedef {Position & {direction: Direction}} SnakeSegment
+ * @typedef {SnakeSegment[]} Snake
  * @typedef {{
  *   direction: Direction,
  *   snake: Snake,
@@ -27,7 +28,7 @@ export default class Game {
   #direction = 'right'
 
   /** @type Snake */
-  #snake = [Object.freeze({ x: 0, y: 0 })]
+  #snake = [Object.freeze({ x: 0, y: 0, direction: 'right' })]
 
   #size
 
@@ -76,10 +77,10 @@ export default class Game {
   changeDirection(direction) {
     if (this.#direction !== direction
         && (this.#snake.length === 1
-            || direction === 'up' && this.#snake[0].y - this.#snake[1].y !== 1
-            || direction === 'down' && this.#snake[0].y - this.#snake[1].y !== -1
-            || direction === 'left' && this.#snake[0].x - this.#snake[1].x !== 1
-            || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1)
+            || direction === 'up' && this.#snake[0].direction !== 'down'
+            || direction === 'down' && this.#snake[0].direction !== 'up'
+            || direction === 'left' && this.#snake[0].direction !== 'right'
+            || direction === 'right' && this.#snake[0].direction !== 'left')
     ) {
       this.#direction = direction
       this.#events.emit('directionChanged', this.state)
@@ -91,7 +92,7 @@ export default class Game {
 
     const next = this.#nextPosition()
 
-    if (this.#snake.some(matches(next))
+    if (this.#snake.some(({x, y}) => x === next.x && y === next.y)
         || next.x === -1
         || next.x === Game.#COLS
         || next.y === -1
@@ -116,15 +117,15 @@ export default class Game {
   }
 
   #nextPosition() {
-    let next = { ...this.#snake[0] }
+    let next = { ...this.#snake[0], direction: this.#direction }
 
-    if (this.#direction === 'up') {
+    if (next.direction === 'up') {
       next.y--
-    } else if (this.#direction === 'down') {
+    } else if (next.direction === 'down') {
       next.y++
-    } else if (this.#direction === 'left') {
+    } else if (next.direction === 'left') {
       next.x--
-    } else if (this.#direction === 'right') {
+    } else if (next.direction === 'right') {
       next.x++
     }
 
