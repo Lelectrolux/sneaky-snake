@@ -29,10 +29,10 @@ export default class Renderer2d {
     let height = this.#domElement.parentElement.scrollHeight
 
     this.#cellSize = width / height > this.#cols / this.#rows
-        ? Math.floor((height / this.#rows) / 9) * 9
-        : Math.floor((width / this.#cols) / 9) * 9
+        ? Math.floor((height / this.#rows) / 16) * 16
+        : Math.floor((width / this.#cols) / 16) * 16
 
-    this.#gapSize = Math.floor(this.#cellSize / 9)
+    this.#gapSize = Math.floor(this.#cellSize / 16)
 
     this.#domElement.width = this.#cellSize * this.#cols
     this.#domElement.height = this.#cellSize * this.#rows
@@ -50,24 +50,41 @@ export default class Renderer2d {
   }
 
   #drawSnake(snake) {
-    this.#drawCell(snake[0], 'white')
-    snake.slice(1).forEach((position, i) => this.#drawCell(position, i % 2 ? 'gray' : 'lightgray'))
+    snake.forEach((position, i) => {
+      this.#ctx.fillStyle = i === 0 ? 'white': 'lightgray'
+      let coords = {
+        x: position.x * this.#cellSize + this.#gapSize,
+        y: position.y * this.#cellSize + this.#gapSize,
+        w: this.#cellSize - (this.#gapSize * 2),
+        h: this.#cellSize - (this.#gapSize * 2)
+      }
+
+      // Add extension to keep snake cells linked to each other
+      if (snake.length !== i + 1) {
+        if (position.direction === 'up') {
+          coords.h += this.#gapSize * 2
+        } else if (position.direction === 'down') {
+          coords.y -= this.#gapSize * 2
+          coords.h += this.#gapSize * 2
+        } else if (position.direction === 'left') {
+          coords.w += this.#gapSize * 2
+        } else if (position.direction === 'right') {
+          coords.x -= this.#gapSize * 2
+          coords.w += this.#gapSize * 2
+        }
+      }
+
+      this.#ctx.fillRect(coords.x, coords.y, coords.w, coords.h)
+    })
   }
 
   #drawApple(position) {
     this.#ctx.fillStyle = 'red'
-
-    this.#drawCell(position, 'red')
-  }
-
-  #drawCell(position, color) {
-    this.#ctx.fillStyle = color
     this.#ctx.fillRect(
         position.x * this.#cellSize + this.#gapSize,
         position.y * this.#cellSize + this.#gapSize,
-        this.#cellSize - this.#gapSize,
-        this.#cellSize - this.#gapSize
-    )
+        this.#cellSize - (this.#gapSize * 2),
+        this.#cellSize - (this.#gapSize * 2))
   }
 
   #clearBoard() {
