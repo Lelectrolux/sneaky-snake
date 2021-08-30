@@ -9,7 +9,8 @@
  *   directionChanged: GameState
  * }} Events
  */
-import mitt, {Emitter} from 'mitt'
+import mitt, { Emitter } from 'mitt'
+
 const matches = require('lodash/matches.js')
 
 export default class Game {
@@ -32,25 +33,27 @@ export default class Game {
   get events() {
     return this.#events
   }
+
   get snake() {
     return [...this.#snake]
   }
 
   /** @param {Direction} direction */
   changeDirection(direction) {
-    if (this.#snake.length === 1
-        || direction === 'up' && this.#snake[0].y - this.#snake[1].y !== 1
-        || direction === 'down' && this.#snake[0].y - this.#snake[1].y !== -1
-        || direction === 'left' && this.#snake[0].x - this.#snake[1].x !== 1
-        || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1
+    if (this.#direction !== direction
+        && (this.#snake.length === 1
+            || direction === 'up' && this.#snake[0].y - this.#snake[1].y !== 1
+            || direction === 'down' && this.#snake[0].y - this.#snake[1].y !== -1
+            || direction === 'left' && this.#snake[0].x - this.#snake[1].x !== 1
+            || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1)
     ) {
       this.#direction = direction
-      this.#events.emit('directionChanged', {direction: this.#direction, snake: this.snake})
+      this.#events.emit('directionChanged', { direction: this.#direction, snake: this.snake })
     }
   }
 
   tick() {
-    this.#events.emit('beforeTick', {direction: this.#direction, snake: this.snake})
+    this.#events.emit('beforeTick', { direction: this.#direction, snake: this.snake })
 
     const next = this.#nextPosition()
 
@@ -65,7 +68,7 @@ export default class Game {
 
     this.#snake.unshift(next)
 
-    this.#events.emit('afterTick', {direction: this.#direction, snake: this.snake})
+    this.#events.emit('afterTick', { direction: this.#direction, snake: this.snake })
   }
 
   #nextPosition() {
