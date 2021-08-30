@@ -43,6 +43,14 @@ export default class Game {
     this.#events = mitt()
   }
 
+  static get COLS() {
+    return this.#COLS
+  }
+
+  static get ROWS() {
+    return this.#ROWS
+  }
+
   get events() {
     return this.#events
   }

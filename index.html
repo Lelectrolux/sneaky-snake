@@ -7,68 +7,44 @@
     .body {
       color: white;
       background-color: #201e1e;
-    }
-
-    .controls {
-      position: absolute;
-      right: 5px;
-      top: 5px;
-      display: inline-grid;
-      gap: 5px;
-      opacity: .75;
-      grid-template:
-            ". up ."
-            "left center right"
-            ". down .";
-    }
-
-    .controls:hover {
-      opacity: 1;
-    }
-
-    .control {
-      font-size: 25px;
-      grid-area: var(--cell);
-      appearance: none;
-      border: none;
-      padding: 0;
+      display: grid;
+      align-content: stretch;
+      justify-content: stretch;
+      grid-template-columns: 1fr;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
       margin: 0;
-      opacity: .75;
-      cursor: pointer;
-      background-color: transparent;
+      padding: 0;
     }
 
-    .control:hover {
-      opacity: 1;
+    .output-2d {
+      display: flex;
+      justify-items: center;
+      align-items: center;
+      height: 100%;
     }
 
-    .output {
-      font-family: monospace
+    .output-2d canvas {
+      border: 1px solid white;
     }
   </style>
 </head>
 <body class="body">
-<div class="controls">
-  <button class="control" onclick="controls.tick()" style="--cell:center">⏯️</button>
-  <button class="control" onclick="controls.up()" style="--cell:up">🔼</button>
-  <button class="control" onclick="controls.down()" style="--cell:down">🔽</button>
-  <button class="control" onclick="controls.left()" style="--cell:left">◀️</button>
-  <button class="control" onclick="controls.right()" style="--cell:right">▶️</button>
-</div>
-<pre class="output" id="output"></pre>
+<main class="output-2d" id="output-2d"></main>
 <script src="dist/index.js"></script>
 <script>
-  const output = document.getElementById('output')
-
-  function log(text) {
-    output.innerText += `${text}\n`
-  }
-
-  const afterTick = (state) => log(JSON.stringify(state))
-  const directionChanged = ({ direction }) => log(`Going ${direction}`)
+  const afterTick = ({direction, snake: [head,], apple}) => console.log(`${direction[0]} h[${head.x},${head.y}] a[${apple.x},${apple.y}]`)
+  const directionChanged = ({ direction }) => console.log(`Going ${direction} now`)
   let game = new Game()
   game.events.on('afterTick', afterTick)
   game.events.on('directionChanged', directionChanged)
+
+  let renderer = new Renderer2d(Game.COLS, Game.ROWS)
+  document.getElementById('output-2d').appendChild(renderer.domElement)
+  renderer.init()
+  renderer.redraw(game.state)
+  game.events.on('afterTick', state => renderer.redraw(state))
 
   const controls = {
     up: () => game.changeDirection('up'),
@@ -81,12 +57,16 @@
   window.addEventListener('keydown', ({ key }) => {
     if (key === 'ArrowUp') {
       controls.up()
+      controls.tick()
     } else if (key === 'ArrowDown') {
       controls.down()
+      controls.tick()
     } else if (key === 'ArrowLeft') {
       controls.left()
+      controls.tick()
     } else if (key === 'ArrowRight') {
       controls.right()
+      controls.tick()
     } else if (key === ' ') {
       controls.tick()
     }
