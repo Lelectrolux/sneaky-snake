@@ -27,8 +27,14 @@ export default class Game {
 
   /** @param {Direction} direction */
   changeDirection(direction) {
-    // TODO prevent turning to previous direction
-    this.#direction = direction
+    if (this.#snake.length === 1
+        || direction === 'up' && this.#snake[0].y - this.#snake[1].y !== 1
+        || direction === 'down' && this.#snake[0].y - this.#snake[1].y !== -1
+        || direction === 'left' && this.#snake[0].x - this.#snake[1].x !== 1
+        || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1
+    ) {
+      this.#direction = direction
+    }
   }
 
   tick() {
