@@ -1,11 +1,15 @@
 /**
  * @typedef {'up'|'down'|'left'|'right'} Direction
  * @typedef {{x: number, y: number}} Position
- * @typedef {(direction: Direction, snake: Position[]) => void} TickCallback
- * @typedef {{beforeTick: ?TickCallback, afterTick: ?TickCallback}} EventsBag
+ * @typedef {Position[]} Snake
+ * @typedef {{direction: Direction, snake: Snake}} GameState
+ * @typedef {{
+ *   afterTick: GameState,
+ *   beforeTick: GameState,
+ *   directionChanged: GameState
+ * }} Events
  */
-
-const cloneDeep = require('lodash/cloneDeep.js')
+import mitt, {Emitter} from 'mitt'
 const matches = require('lodash/matches.js')
 
 export default class Game {
@@ -15,18 +19,21 @@ export default class Game {
   /** @type Direction */
   #direction = 'right'
 
-  /** @type Position[] */
-  #snake = [{ x: 1, y: 0 }, { x: 0, y: 0 }]
+  /** @type Snake */
+  #snake = [Object.freeze({ x: 0, y: 0 })]
 
-  /** @type EventsBag */
+  /** @type Emitter<Events> */
   #events
 
-  /**
-   * @param {TickCallback} beforeTick
-   * @param {TickCallback} afterTick
-   */
-  constructor({beforeTick = null, afterTick = null} = {}) {
-    this.#events = {beforeTick, afterTick}
+  constructor() {
+    this.#events = mitt()
+  }
+
+  get events() {
+    return this.#events
+  }
+  get snake() {
+    return [...this.#snake]
   }
 
   /** @param {Direction} direction */
@@ -38,11 +45,12 @@ export default class Game {
         || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1
     ) {
       this.#direction = direction
+      this.#events.emit('directionChanged', {direction: this.#direction, snake: this.snake})
     }
   }
 
   tick() {
-    this.#events.beforeTick?.(this.#direction, cloneDeep(this.#snake))
+    this.#events.emit('beforeTick', {direction: this.#direction, snake: this.snake})
 
     const next = this.#nextPosition()
 
@@ -57,7 +65,7 @@ export default class Game {
 
     this.#snake.unshift(next)
 
-    this.#events.afterTick?.(this.#direction, cloneDeep(this.#snake))
+    this.#events.emit('afterTick', {direction: this.#direction, snake: this.snake})
   }
 
   #nextPosition() {
@@ -72,6 +80,8 @@ export default class Game {
     } else if (this.#direction === 'right') {
       next.x++
     }
+
+    Object.freeze(next);
 
     return next
   }

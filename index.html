@@ -4,40 +4,56 @@
   <meta charset="UTF-8">
   <title>Sneaky Snake !</title>
   <style>
+    .body {
+      color: white;
+      background-color: #201e1e;
+    }
+
     .controls {
-      display: grid;
+      display: inline-grid;
+      gap: 5px;
       grid-template:
-            ". up ." 25px
-            "left center right" 25px
-            ". down ." 25px / 50px 50px 50px;
+            ". up ."
+            "left center right"
+            ". down .";
     }
 
     .control {
+      font-size: 25px;
       grid-area: var(--cell);
+      appearance: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      background-color: transparent;
     }
+
     .output {
       font-family: monospace
     }
   </style>
 </head>
-<body>
+<body class="body">
 <div class="controls">
-  <button class="control" onclick="game.tick()" style="--cell:center">Tick</button>
-  <button class="control" onclick="game.changeDirection('up')" style="--cell:up">Up</button>
-  <button class="control" onclick="game.changeDirection('down')" style="--cell:down">Down</button>
-  <button class="control" onclick="game.changeDirection('left')" style="--cell:left">Left</button>
-  <button class="control" onclick="game.changeDirection('right')" style="--cell:right">Right</button>
+  <button class="control" onclick="game.tick()" style="--cell:center">⏯️</button>
+  <button class="control" onclick="game.changeDirection('up')" style="--cell:up">🔼</button>
+  <button class="control" onclick="game.changeDirection('down')" style="--cell:down">🔽</button>
+  <button class="control" onclick="game.changeDirection('left')" style="--cell:left">◀️</button>
+  <button class="control" onclick="game.changeDirection('right')" style="--cell:right">▶️</button>
 </div>
 <pre class="output" id="output"></pre>
 <script src="dist/index.js"></script>
 <script>
   const output = document.getElementById('output')
 
-  const afterTick = (direction, snake) => {
-    output.innerText += `${JSON.stringify(snake[0])} ${direction}\n`
+  function log(text) {
+    output.innerText += `${text}\n`
   }
 
-  let game = new Game({afterTick})
+  let game = new Game()
+
+  game.events.on('afterTick', ({ direction, snake }) => log(`${JSON.stringify(snake[0])} ${direction}`))
+  game.events.on('directionChanged', ({direction}) => log(`Turned to ${direction}`))
 </script>
 </body>
 </html>
