@@ -6,8 +6,12 @@
  */
 
 const cloneDeep = require('lodash/cloneDeep.js')
+const matches = require('lodash/matches.js')
 
 export default class Game {
+  static #COLS = 20
+  static #ROWS = 15
+
   /** @type Direction */
   #direction = 'right'
 
@@ -40,21 +44,35 @@ export default class Game {
   tick() {
     this.#events.beforeTick?.(this.#direction, cloneDeep(this.#snake))
 
-    let newHead = { ...this.#snake[0] }
+    const next = this.#nextPosition()
 
-    // TODO Deal with OOB
-    if (this.#direction === 'up') {
-      newHead.y--
-    } else if (this.#direction === 'down') {
-      newHead.y++
-    } else if (this.#direction === 'left') {
-      newHead.x--
-    } else if (this.#direction === 'right') {
-      newHead.x++
+    if (this.#snake.some(matches(next))
+        || next.x === -1
+        || next.x === Game.#COLS
+        || next.y === -1
+        || next.y === Game.#ROWS
+    ) {
+      return
     }
 
-    this.#snake.unshift(newHead)
+    this.#snake.unshift(next)
 
     this.#events.afterTick?.(this.#direction, cloneDeep(this.#snake))
+  }
+
+  #nextPosition() {
+    let next = { ...this.#snake[0] }
+
+    if (this.#direction === 'up') {
+      next.y--
+    } else if (this.#direction === 'down') {
+      next.y++
+    } else if (this.#direction === 'left') {
+      next.x--
+    } else if (this.#direction === 'right') {
+      next.x++
+    }
+
+    return next
   }
 }
