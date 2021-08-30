@@ -1,0 +1,20 @@
+{
+  "name": "sneaky-snake",
+  "version": "0.1.0",
+  "description": "Sneaky Snake !",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Javascript",
+    "Snake",
+    "Game"
+  ],
+  "author": "Lelectrolux",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lelectrolux/sneaky-snake/issues"
+  },
+  "homepage": "https://github.com/Lelectrolux/sneaky-snake"
+}
