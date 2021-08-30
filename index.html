@@ -50,8 +50,8 @@
     output.innerText += `${text}\n`
   }
 
-  const afterTick = ({ direction, snake }) => log(`${JSON.stringify(snake[0])} ${direction}`)
-  const directionChanged = ({ direction }) => log(`Turned to ${direction}`)
+  const afterTick = (state) => log(JSON.stringify(state))
+  const directionChanged = ({ direction }) => log(`Going ${direction}`)
   let game = new Game()
   game.events.on('afterTick', afterTick)
   game.events.on('directionChanged', directionChanged)

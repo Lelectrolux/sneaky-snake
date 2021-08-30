@@ -2,16 +2,22 @@
  * @typedef {'up'|'down'|'left'|'right'} Direction
  * @typedef {{x: number, y: number}} Position
  * @typedef {Position[]} Snake
- * @typedef {{direction: Direction, snake: Snake}} GameState
+ * @typedef {{
+ *   direction: Direction,
+ *   snake: Snake,
+ *   apple: Position
+ * }} GameState
  * @typedef {{
  *   afterTick: GameState,
  *   beforeTick: GameState,
- *   directionChanged: GameState
+ *   directionChanged: GameState,
+ *   appleEaten: GameState
  * }} Events
  */
 import mitt, { Emitter } from 'mitt'
 
 const matches = require('lodash/matches.js')
+const isMatch = require('lodash/isMatch.js')
 
 export default class Game {
   static #COLS = 20
@@ -23,10 +29,17 @@ export default class Game {
   /** @type Snake */
   #snake = [Object.freeze({ x: 0, y: 0 })]
 
+  #size
+
+  /** @type Position */
+  #apple
+
   /** @type Emitter<Events> */
   #events
 
   constructor() {
+    this.#size = this.#snake.length
+    this.#newApple()
     this.#events = mitt()
   }
 
@@ -36,6 +49,19 @@ export default class Game {
 
   get snake() {
     return [...this.#snake]
+  }
+
+  get apple() {
+    return this.#apple
+  }
+
+  get state() {
+    return {
+      direction: this.#direction,
+      snake: this.snake,
+      apple: this.apple,
+      size: this.#size
+    }
   }
 
   /** @param {Direction} direction */
@@ -48,12 +74,12 @@ export default class Game {
             || direction === 'right' && this.#snake[0].x - this.#snake[1].x !== -1)
     ) {
       this.#direction = direction
-      this.#events.emit('directionChanged', { direction: this.#direction, snake: this.snake })
+      this.#events.emit('directionChanged', this.state)
     }
   }
 
   tick() {
-    this.#events.emit('beforeTick', { direction: this.#direction, snake: this.snake })
+    this.#events.emit('beforeTick', this.state)
 
     const next = this.#nextPosition()
 
@@ -68,7 +94,17 @@ export default class Game {
 
     this.#snake.unshift(next)
 
-    this.#events.emit('afterTick', { direction: this.#direction, snake: this.snake })
+    if (this.#snake.length > this.#size) {
+      this.#snake.pop()
+    }
+
+    if (isMatch(next, this.#apple)) {
+      this.#size++
+      this.#newApple()
+      this.#events.emit('appleEaten', this.state)
+    }
+
+    this.#events.emit('afterTick', this.state)
   }
 
   #nextPosition() {
@@ -87,5 +123,14 @@ export default class Game {
     Object.freeze(next);
 
     return next
+  }
+
+  #newApple() {
+    do {
+      this.#apple = Object.freeze({
+        x: Math.floor(Math.random() * Game.#COLS),
+        y: Math.floor(Math.random() * Game.#ROWS)
+      })
+    } while (this.#snake.some(matches(this.#apple)))
   }
 }
