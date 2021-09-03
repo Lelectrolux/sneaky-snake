@@ -10,7 +10,6 @@
  * }} GameState
  * @typedef {{
  *   afterTick: GameState,
- *   beforeTick: GameState,
  *   directionChanged: GameState,
  *   appleEaten: GameState
  * }} Events
@@ -21,14 +20,18 @@ const matches = require('lodash/matches.js')
 const isMatch = require('lodash/isMatch.js')
 
 export default class Game {
-  static #COLS = 20
-  static #ROWS = 15
+  #cols = 20
+  #rows = 15
 
   /** @type Direction */
   #direction = 'right'
 
   /** @type Snake */
-  #snake = [Object.freeze({ x: 0, y: 0, direction: 'right' })]
+  #snake = [
+    Object.freeze({ x: 2, y: 0, direction: 'right' }),
+    Object.freeze({ x: 1, y: 0, direction: 'right' }),
+    Object.freeze({ x: 0, y: 0, direction: 'right' }),
+  ]
 
   #size
 
@@ -42,67 +45,60 @@ export default class Game {
     this.#size = this.#snake.length
     this.#newApple()
     this.#events = mitt()
+    this.#registerControls()
   }
 
-  static get COLS() {
-    return this.#COLS
+  get cols() {
+    return this.#cols
   }
 
-  static get ROWS() {
-    return this.#ROWS
+  get rows() {
+    return this.#rows
   }
 
   get events() {
     return this.#events
   }
 
-  get snake() {
-    return [...this.#snake]
-  }
-
-  get apple() {
-    return this.#apple
-  }
-
   get state() {
     return {
       direction: this.#direction,
-      snake: this.snake,
-      apple: this.apple,
+      snake: [...this.#snake],
+      apple: this.#apple,
       size: this.#size
     }
   }
 
   /** @param {Direction} direction */
   changeDirection(direction) {
-    if (this.#direction !== direction
-        && (this.#snake.length === 1
-            || direction === 'up' && this.#snake[0].direction !== 'down'
-            || direction === 'down' && this.#snake[0].direction !== 'up'
-            || direction === 'left' && this.#snake[0].direction !== 'right'
-            || direction === 'right' && this.#snake[0].direction !== 'left')
+    if (this.#snake.length === 1
+        || direction === 'up' && this.#snake[0].direction !== 'down'
+        || direction === 'down' && this.#snake[0].direction !== 'up'
+        || direction === 'left' && this.#snake[0].direction !== 'right'
+        || direction === 'right' && this.#snake[0].direction !== 'left'
     ) {
-      this.#direction = direction
-      this.#events.emit('directionChanged', this.state)
+      if (this.#direction !== direction) {
+        this.#direction = direction
+        this.#events.emit('directionChanged', this.state)
+      }
+      return true
     }
+    return false
   }
 
   tick() {
-    this.#events.emit('beforeTick', this.state)
-
     const next = this.#nextPosition()
 
-    if (this.#snake.some(({x, y}) => x === next.x && y === next.y)
-        || next.x === -1
-        || next.x === Game.#COLS
-        || next.y === -1
-        || next.y === Game.#ROWS
+    if (this.#snake.some(({ x, y }) => x === next.x && y === next.y) // eat self
+        || next.x === -1 // left wall
+        || next.x === this.#cols // right wall
+        || next.y === -1 // top wall
+        || next.y === this.#rows // down wall
     ) {
       return
     }
 
     this.#snake.unshift(next)
-
     if (this.#snake.length > this.#size) {
       this.#snake.pop()
     }
@@ -137,9 +133,41 @@ export default class Game {
   #newApple() {
     do {
       this.#apple = Object.freeze({
-        x: Math.floor(Math.random() * Game.#COLS),
-        y: Math.floor(Math.random() * Game.#ROWS)
+        x: Math.floor(Math.random() * this.#cols),
+        y: Math.floor(Math.random() * this.#rows)
       })
     } while (this.#snake.some(matches(this.#apple)))
+  }
+
+  up() {
+    this.changeDirection('up') && this.tick()
+  }
+
+  down() {
+    this.changeDirection('down') && this.tick()
+  }
+
+  left() {
+    this.changeDirection('left') && this.tick()
+  }
+
+  right() {
+    this.changeDirection('right') && this.tick()
+  }
+
+  #registerControls() {
+    window.addEventListener('keydown', ({ code }) => {
+      if (['ArrowUp', 'Numpad8', 'KeyW'].includes(code)) {
+        this.up()
+      } else if (['ArrowDown', 'Numpad2', 'KeyS'].includes(code)) {
+        this.down()
+      } else if (['ArrowLeft', 'Numpad4', 'KeyA'].includes(code)) {
+        this.left()
+      } else if (['ArrowRight', 'Numpad6', 'KeyD'].includes(code)) {
+        this.right()
+      } else if (['NumpadAdd'].includes(code)) {
+        this.#size++
+      }
+    })
   }
 }
