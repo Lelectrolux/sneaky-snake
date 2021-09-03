@@ -8,7 +8,7 @@
     "dev": "cross-env NODE_ENV=development webpack --progress --config webpack.config.js",
     "watch": "npm run dev -- --watch",
     "watch-poll": "npm run watch -- --watch-poll",
-    "prod": "cross-env NODE_ENV=production webpack --no-progress --config webpack.config.js"
+    "prod": "cross-env NODE_ENV=production webpack --config webpack.config.js"
   },
   "keywords": [
     "Javascript",
