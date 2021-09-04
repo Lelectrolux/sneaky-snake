@@ -3,106 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <title>🐍 Sneaky Snake !</title>
-  <link rel="stylesheet" href="dist/preflight.css">
+  <link href="dist/preflight.css" rel="stylesheet">
   <style>
     body {
-      height: 100vh;
-      background-color: #FAFAF9;
-      color: #57534E;
       display: grid;
+      height: 100vh;
+      padding: 1rem;
+      color: #57534e;
+      background-color: #fafaf9;
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: auto repeat(1, 1fr);
       gap: 1rem;
-      padding: 1rem;
     }
+
     header {
-      grid-column: span 2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       font-size: 4em;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #292524;
+      grid-column: span 2;
     }
+
     body > :not(header, .controls) {
-      background-color: #F5F5F4;
-      border-radius: .5rem;
-      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
       position: relative;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
+      border-radius: .5rem;
+      background-color: #f5f5f4;
+      box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
     }
+
     body > :not(header) {
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
     }
+
     canvas {
-      border: 4px solid #78350F;
+      border: 4px solid #78350f;
     }
+
     kbd {
-      background-color: #eee;
-      border-radius: 3px;
-      border: 1px solid #b4b4b4;
-      box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
-      color: #333;
-      display: inline-block;
       font-size: .85em;
       font-weight: 700;
       line-height: 1;
+      display: inline-block;
       padding: 2px 4px;
       white-space: nowrap;
+      color: #333;
+      border: 1px solid #b4b4b4;
+      border-radius: 3px;
+      background-color: #eee;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 2px 0 0 rgba(255, 255, 255, .7) inset;
     }
+
     .controls {
       display: flex;
       flex-direction: column;
       gap: 1rem
     }
+
     .input-grid {
-      display: grid;
       font-size: 6em;
+      display: grid;
       gap: 1rem;
       grid-template:
         ". u ."
         "l d r";
     }
+
     kbd {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 1em;
       height: 1em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       cursor: pointer;
-      transform: translateY(-.05em);
       user-select: none;
+      transform: translateY(-.05em);
       box-shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
     }
+
     kbd:active {
       transform: translateY(0);
       box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.06) 0 1px 2px 0;
     }
+
     [area] {
       grid-area: attr(area, auto);
     }
   </style>
-  <script src="dist/index.js" defer></script>
+  <script defer src="dist/index.js"></script>
 </head>
 <body class="body">
 <header>
   <h1>🐍 Sneaky Snake !</h1>
 </header>
-<div><canvas id="snake-square"></canvas></div>
+<div>
+  <canvas id="snake-square"></canvas>
+</div>
 <div class="controls">
   <div class="input-grid">
-    <kbd style="grid-area:u" onclick="game.up()">↑</kbd>
-    <kbd style="grid-area:l" onclick="game.left()">←</kbd>
-    <kbd style="grid-area:d" onclick="game.down()">↓</kbd>
-    <kbd style="grid-area:r" onclick="game.right()">→</kbd>
+    <kbd onclick="game.up()" style="grid-area:u">↑</kbd>
+    <kbd onclick="game.left()" style="grid-area:l">←</kbd>
+    <kbd onclick="game.down()" style="grid-area:d">↓</kbd>
+    <kbd onclick="game.right()" style="grid-area:r">→</kbd>
   </div>
   <p>Either click these buttons, or use your keyboard</p>
 </div>

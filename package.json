@@ -2,7 +2,7 @@
   "name": "sneaky-snake",
   "version": "0.1.0",
   "description": "Sneaky Snake !",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development webpack --progress --config webpack.config.js",
@@ -23,6 +23,9 @@
   "homepage": "https://github.com/Lelectrolux/sneaky-snake",
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "source-map-loader": "^3.0.0",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.2",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"
   },
