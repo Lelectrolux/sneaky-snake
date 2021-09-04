@@ -6,6 +6,7 @@ const formatCoords = ({ x, y }: Position) => {
 
 export default class ConsoleRenderer {
   constructor(game: Game) {
+    this.logToConsole(game.state)
     game.events.on('afterTick', this.logToConsole)
   }
 
