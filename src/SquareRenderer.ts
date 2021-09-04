@@ -4,10 +4,10 @@ const cell = 16
 const gap = 2
 
 export default class SquareRenderer {
-  cols: number
-  rows: number
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
+  protected cols: number
+  protected rows: number
+  protected canvas: HTMLCanvasElement
+  protected ctx: CanvasRenderingContext2D
 
   constructor(game: Game, canvas: HTMLCanvasElement) {
     this.cols = game.cols
