@@ -68,8 +68,8 @@
       display: grid;
       gap: .5rem;
       grid-template:
-        ". u ."
-        "l d r";
+        ". up ."
+        "left down right";
     }
 
     kbd {
@@ -105,11 +105,10 @@
 <header>
   <h1>🐍 Sneaky Snake !</h1>
 
-  <nav x-data>
-    <button style="grid-area:u" @click="game.up()"><kbd>↑</kbd></button>
-    <button style="grid-area:l" @click="game.left()"><kbd>←</kbd></button>
-    <button style="grid-area:d" @click="game.down()"><kbd>↓</kbd></button>
-    <button style="grid-area:r" @click="game.right()"><kbd>→</kbd></button>
+  <nav>
+    <template x-data x-for="(arrow, dir) in {up: '↑', down: '↓', left: '←', right: '→'}">
+      <button :style="`grid-area:${dir}`" @click="game[dir]()"><kbd x-text="arrow"></kbd></button>
+    </template>
   </nav>
 </header>
 <div>
