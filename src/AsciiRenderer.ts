@@ -1,8 +1,10 @@
+import BaseRenderer from "./BaseRenderer";
 import Game, { Direction, GameState } from "./Game";
+
 const repeat = require('lodash/repeat.js')
 const chunk = require('lodash/chunk.js')
 
-function headArrow(direction: Direction): string {
+function directionToArrow(direction: Direction): string {
   return {
     [Direction.Up]: '↑',
     [Direction.Down]: '↓',
@@ -11,30 +13,29 @@ function headArrow(direction: Direction): string {
   }[direction]
 }
 
-export default class AsciiRenderer {
+export default class AsciiRenderer extends BaseRenderer {
   cols: number
   rows: number
   pre: HTMLPreElement
 
   constructor(game: Game, pre: HTMLPreElement) {
+    super()
+
     this.cols = game.cols
     this.rows = game.rows
     this.pre = pre
 
-    this.redraw(game.state)
-
-    // TODO might want to look into css scaling transform to force
-    //  width / height ratio to match (cols + 2) / (rows + 2)
-
-    game.events.on('afterTick', state => this.redraw(state))
+    this.init(game)
   }
 
-  redraw({ snake, apple }: GameState) {
+  public render({ snake, apple }: GameState) {
     let data = new Array(this.rows * this.cols).fill(' ')
     data = chunk(data, this.cols)
 
     snake.forEach(({ x, y, direction }, i) => {
-      data[y][x] = i === 0 ? headArrow(direction) : '#'
+      data[y][x] = i === 0 || direction === snake[i - 1].direction
+          ? directionToArrow(direction)
+          : directionToArrow(snake[i - 1].direction)
     })
 
     data[apple.y][apple.x] = '@'

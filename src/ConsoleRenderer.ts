@@ -1,16 +1,18 @@
 import Game, { GameState, Position } from "Game";
+import BaseRenderer from "./BaseRenderer";
 
 const formatCoords = ({ x, y }: Position) => {
   return `[${String(x).padStart(2, '0')} ${String(y).padStart(2, '0')}]`
 }
 
-export default class ConsoleRenderer {
+export default class ConsoleRenderer extends BaseRenderer {
   constructor(game: Game) {
-    this.logToConsole(game.state)
-    game.events.on('afterTick', this.logToConsole)
+    super()
+
+    this.init(game)
   }
 
-  protected logToConsole({ snake, apple }: GameState) {
+  public render({ snake, apple }: GameState) {
     let appleLog = `🍎\t${formatCoords(apple)}`
     let snakeLog = `🐍\tlength=${snake.length}` + snake.reduce((str, cell, i) => {
       if (i === 0 || cell.direction !== snake[i - 1].direction) {
