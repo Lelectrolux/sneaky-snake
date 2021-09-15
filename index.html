@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>🐍 Sneaky Snake !</title>
   <link href="dist/preflight.css" rel="stylesheet">
+  <link rel="preload" href="SpriteSheet.svg" as="image">
   <style>
     body {
       display: flex;
@@ -42,6 +43,9 @@
       display: flex;
       flex-direction: column;
       gap: 1rem 0;
+      max-width: 100%;
+      max-height: 100%;
+      align-items: center;
     }
 
     div > div,
@@ -97,11 +101,11 @@
   <script src="https://unpkg.com/alpinejs" defer></script>
   <script defer src="dist/index.js"></script>
 </head>
-<body x-data="{ value: 'squares', renderers: [] }">
+<body>
 <header>
   <h1>🐍 Sneaky Snake !</h1>
 
-  <nav>
+  <nav x-data>
     <button style="grid-area:u" @click="game.up()"><kbd>↑</kbd></button>
     <button style="grid-area:l" @click="game.left()"><kbd>←</kbd></button>
     <button style="grid-area:d" @click="game.down()"><kbd>↓</kbd></button>
@@ -109,19 +113,32 @@
   </nav>
 </header>
 <div>
-  <div>
+  <div x-data="{
+    value: 'sprites',
+    renderers: [],
+    renderer: {
+      ['x-show']() {
+        return this.value === this.$el.id
+      },
+      ['x-init']() {
+        this.renderers.push(this.$el.id)
+      }
+    }
+  }">
     <label x-show="renderers.length !== 0" >
       <span>Render as: </span>
       <select x-model="value" @change="$el.blur()">
-        <template x-for="renderer in renderers">
-          <option :value="renderer" x-text="renderer"></option>
+        <template x-for="r in renderers">
+          <option :value="r" x-text="r"></option>
         </template>
       </select>
     </label>
 
-    <canvas id="squares" x-init="renderers.push($el.id)" x-show="value === $el.id"></canvas>
+    <canvas id="sprites" x-bind="renderer"></canvas>
 
-    <pre id="ascii" x-init="renderers.push($el.id)" x-show="value === $el.id"></pre>
+    <canvas id="squares" x-bind="renderer"></canvas>
+
+    <pre id="ascii" x-bind="renderer"></pre>
   </div>
 </div>
 </body>

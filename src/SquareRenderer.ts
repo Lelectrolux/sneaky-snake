@@ -1,34 +1,10 @@
-import BaseRenderer from "./BaseRenderer";
-import Game, { Direction, GameState, Position, Snake } from "./Game";
+import CanvasRenderer from "./CanvasRenderer";
+import Game, { Direction, Position, Snake } from "./Game";
 
 const cell = 16
 const gap = 2
 
-export default class SquareRenderer extends BaseRenderer {
-  protected cols: number
-  protected rows: number
-  protected canvas: HTMLCanvasElement
-  protected ctx: CanvasRenderingContext2D
-
-  public constructor(game: Game, canvas: HTMLCanvasElement) {
-    super()
-    this.cols = game.cols
-    this.rows = game.rows
-    this.canvas = canvas
-    // @ts-ignore Type 'CanvasRenderingContext2D | null' is not assignable to type 'CanvasRenderingContext2D'.   Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
-    this.ctx = this.canvas.getContext('2d')
-
-    this.withCanvas(canvas, game)
-
-    this.init(game)
-  }
-
-  public render(state: GameState) {
-    this.drawBoard()
-    this.drawSnake(state.snake)
-    this.drawApple(state.apple)
-  }
-
+export default class SquareRenderer extends CanvasRenderer {
   protected withCanvas(canvas: HTMLCanvasElement, game: Game) {
     canvas.width = game.cols * cell
     canvas.height = game.rows * cell
