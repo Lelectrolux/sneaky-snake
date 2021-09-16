@@ -8,7 +8,8 @@
     "dev": "cross-env NODE_ENV=development webpack --progress --config webpack.config.js",
     "watch": "npm run dev -- --watch",
     "watch-poll": "npm run watch -- --watch-poll",
-    "prod": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+    "prod": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "tailwindcss": "tailwindcss -o dist/tailwind.css"
   },
   "keywords": [
     "Javascript",
@@ -22,14 +23,18 @@
   },
   "homepage": "https://github.com/Lelectrolux/sneaky-snake",
   "devDependencies": {
+    "autoprefixer": "^10.3.4",
     "cross-env": "^7.0.3",
+    "postcss": "^8.3.6",
     "source-map-loader": "^3.0.0",
+    "tailwindcss": "^2.2.15",
     "ts-loader": "^9.2.5",
     "typescript": "^4.4.2",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "@tailwindcss/forms": "^0.3.3",
     "lodash": "^4.17.21",
     "mitt": "^3.0.0"
   }
