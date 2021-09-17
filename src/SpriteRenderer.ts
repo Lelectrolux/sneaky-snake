@@ -1,5 +1,5 @@
 import CanvasRenderer from "./CanvasRenderer";
-import Game, { Direction } from "./Game";
+import Game, { Direction, GameState } from "./Game";
 
 const sprite = {
   img: document.createElement('img'),
@@ -45,7 +45,7 @@ Object.freeze(sprite.map)
 export default class SpriteRenderer extends CanvasRenderer {
   protected withCanvas(canvas: HTMLCanvasElement, game: Game) {
     canvas.width = game.cols * sprite.size
-    canvas.height = game.rows * sprite.size
+    canvas.height = (game.rows + 1) * sprite.size
   }
 
   protected drawBoard() {
@@ -87,5 +87,19 @@ export default class SpriteRenderer extends CanvasRenderer {
         sprite.size,
         sprite.size
     )
+  }
+
+  protected drawScore(state: GameState) {
+    this.ctx.clearRect(0, this.rows * sprite.size, this.cols * sprite.size, sprite.size)
+    this.ctx.font = `${sprite.size * .75}px monospace`
+    this.ctx.fillStyle = 'black'
+    this.ctx.textAlign = 'right'
+    this.ctx.textBaseline = 'top'
+    this.ctx.fillText(
+        `${state.size}`,
+        (this.cols - 1) * sprite.size,
+        (this.rows + .25) * sprite.size
+    )
+    this.drawApple({x: this.cols - 1, y: this.rows})
   }
 }

@@ -25,10 +25,12 @@ export default abstract class CanvasRenderer extends BaseRenderer {
     this.drawBoard()
     this.drawSnake(state.snake)
     this.drawApple(state.apple)
+    this.drawScore(state)
   }
 
   protected abstract withCanvas(canvas: HTMLCanvasElement, game: Game);
   protected abstract drawBoard();
   protected abstract drawSnake(snake: Snake);
   protected abstract drawApple(position: Position);
+  protected drawScore(state: GameState) {}
 }

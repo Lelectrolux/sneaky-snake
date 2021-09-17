@@ -28,7 +28,7 @@ export default class AsciiRenderer extends BaseRenderer {
     this.init(game)
   }
 
-  public render({ snake, apple }: GameState) {
+  public render({ snake, apple, size }: GameState) {
     let data = new Array(this.rows * this.cols).fill(' ')
     data = chunk(data, this.cols)
 
@@ -40,12 +40,14 @@ export default class AsciiRenderer extends BaseRenderer {
 
     data[apple.y][apple.x] = '@'
 
-    let horizontalBorder = `+${repeat('—', this.cols)}+`
+    let topBorder = `+${repeat('—', this.cols)}+`
+    let score = `[${size}@]`
+    let bottomBorder = `+${repeat('—', this.cols - score.length)}${score}+`
 
     this.pre.innerText = [
-      horizontalBorder,
+      topBorder,
       ...data.map(line => `|${line.join('')}|`),
-      horizontalBorder
+      bottomBorder
     ].join('\n')
   }
 }
