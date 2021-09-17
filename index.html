@@ -6,76 +6,49 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link href="dist/tailwind.css" rel="stylesheet">
   <link rel="preload" href="SpriteSheet.svg" as="image">
+  <script src="dist/index.js" defer></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
-  <script defer src="dist/index.js"></script>
 </head>
 <body class="flex flex-col h-screen text-gray-700 bg-gray-50 gap-4">
 <header class="flex items-center justify-evenly p-4">
-  <h1 class="text-6xl text-gray-900 font-bold">🐍 Sneaky Snake !</h1>
+  <h1 class="text-8xl text-gray-900 font-bold">🐍 Sneaky Snake !</h1>
 
-  <div class="flex items-center space-x-12">
-    <nav
-      x-data
-      class="grid gap-4 select-none text-5xl font-bold text-gray-800"
-      style='grid-template: ". up ." "left playpause right" ". down ."'>
-      <template x-for="(icon, action) in {up: '⬆️', down: '⬇️', left: '⬅️', right: '➡️', playpause: '⏯️'}">
-        <button
-          class="
+  <nav
+    x-data
+    class="grid gap-4 select-none text-5xl font-bold text-gray-800"
+    style='grid-template: ". up ." "left playpause right" ". down ."'>
+    <template x-for="(icon, action) in {up: '⬆️', down: '⬇️', left: '⬅️', right: '➡️', playpause: '⏯️'}">
+      <button
+        class="
           px-2 py-1 w-12 h-12 flex items-center justify-center border rounded bg-gray-200 cursor-pointer shadow-lg
           transition duration-75 active:translate-y-1 active:shadow"
-          :style="`grid-area:${action}`"
-          @click="game[action]()"
-          x-text="icon"></button>
-      </template>
-    </nav>
-
-    <div class="space-y-1">
-      <template x-data x-for="r in $store.renderers">
-        <label class="flex items-center">
-          <input class="form-radio" type="radio" x-model="$store.current" :value="r" @input="$el.blur()">
-          <span class="ml-2" x-text="r"></span>
-        </label>
-      </template>
-    </div>
-  </div>
+        :style="`grid-area:${action}`"
+        @click="$store.game[action]()"
+        x-text="icon"></button>
+    </template>
+  </nav>
 </header>
 
 <div class="flex-grow overflow-hidden flex justify-center items-start p-4">
-  <div class="flex justify-center items-start max-w-full max-h-full relative" style="aspect-ratio: 20/15">
-    <canvas
-      id="sprites"
-      x-data="renderer"
-      x-show="shouldShow"
-    ></canvas>
-
-    <canvas
-      id="squares"
-      x-data="renderer"
-      x-show="shouldShow"
-      class="h-full w-full"
-    ></canvas>
-
-    <pre
-      id="ascii"
-      x-data="renderer"
-      x-show="shouldShow"
-      class="leading-none select-none tracking-[.45em] text-4xl"
-    ></pre>
-  </div>
+  <!--<canvas
+    x-init="new SquareRenderer($store.game, $el)"
+    class="max-h-full max-w-full"
+  ></canvas>-->
+  <canvas
+    x-init="new SpriteRenderer($store.game, $el)"
+    class="max-h-full max-w-full"
+  ></canvas>
+  <!--<pre
+    x-init="new AsciiRenderer($store.game, $el)"
+    class="leading-none tracking-[.45em] text-4xl"
+  ></pre>-->
 </div>
 
 <script>
   document.addEventListener('alpine:init', () => {
-    Alpine.store('renderers', [])
-    Alpine.store('current', 'sprites')
-    Alpine.data('renderer', () => ({
-      init() {
-        this.$store.renderers.push(this.$el.id)
-      },
-      get shouldShow() {
-        return this.$store.current === this.$el.id
-      }
-    }))
+    const game = new Game()
+    new ConsoleRenderer(game)
+    Alpine.store('game', game)
   })
 </script>
 </body>

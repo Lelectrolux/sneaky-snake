@@ -1,14 +1,21 @@
 import AsciiRenderer from './AsciiRenderer'
 import ConsoleRenderer from './ConsoleRenderer'
 import Game from './Game'
-import SpriteRenderer from "./SpriteRenderer";
+import SpriteRenderer from "./SpriteRenderer"
 import SquareRenderer from './SquareRenderer'
 
-let game = new Game()
-new ConsoleRenderer(game)
-new SquareRenderer(game, <HTMLCanvasElement>document.getElementById('squares'))
-new SpriteRenderer(game, <HTMLCanvasElement>document.getElementById('sprites'))
-new AsciiRenderer(game, <HTMLPreElement>document.getElementById('ascii'))
+declare global {
+  interface Window {
+    Game,
+    ConsoleRenderer,
+    AsciiRenderer,
+    SquareRenderer,
+    SpriteRenderer,
+  }
+}
 
-// @ts-ignore
-window.game = game
+window.Game = Game
+window.ConsoleRenderer = ConsoleRenderer
+window.AsciiRenderer = AsciiRenderer
+window.SquareRenderer = SquareRenderer
+window.SpriteRenderer = SpriteRenderer
