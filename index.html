@@ -67,7 +67,7 @@
 <script>
   document.addEventListener('alpine:init', () => {
     Alpine.store('renderers', [])
-    Alpine.store('current', 'squares')
+    Alpine.store('current', 'sprites')
     Alpine.data('renderer', () => ({
       init() {
         this.$store.renderers.push(this.$el.id)
