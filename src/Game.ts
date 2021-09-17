@@ -1,4 +1,5 @@
 import mitt, { Emitter } from 'mitt'
+
 const matches = require('lodash/matches.js')
 const isMatch = require('lodash/isMatch.js')
 
@@ -8,10 +9,11 @@ export enum Direction {
   Left = '⬅️',
   Right = '➡️',
 }
+
 export type Position = { x: number, y: number }
 export type Snake = (Position & { direction: Direction })[]
-export type GameState = { direction: Direction, snake: Snake, apple: Position, size: number }
-export type GameEvents = { afterTick: GameState, directionChanged: GameState, appleEaten: GameState }
+export type GameState = { direction: Direction, snake: Snake, apple: Position, size: number, running: boolean }
+export type GameEvents = { afterTick: GameState, directionChanged: GameState, appleEaten: GameState, start: GameState, stop: GameState }
 
 export default class Game {
   readonly cols: number = 20
@@ -27,6 +29,7 @@ export default class Game {
   ]
   protected direction: Direction = Direction.Right
   protected size: number
+  protected intervalId
 
   constructor() {
     this.size = this.snake.length
@@ -40,24 +43,48 @@ export default class Game {
       direction: this.direction,
       snake: [...this.snake],
       apple: this.apple,
-      size: this.size
+      size: this.size,
+      running: this.running,
     }
   }
 
+  public get running(): boolean {
+    return !!this.intervalId
+  }
+
   public up() {
-    this.changeDirection(Direction.Up) && this.tick()
+    this.changeDirection(Direction.Up)
   }
 
   public down() {
-    this.changeDirection(Direction.Down) && this.tick()
+    this.changeDirection(Direction.Down)
   }
 
   public left() {
-    this.changeDirection(Direction.Left) && this.tick()
+    this.changeDirection(Direction.Left)
   }
 
   public right() {
-    this.changeDirection(Direction.Right) && this.tick()
+    this.changeDirection(Direction.Right)
+  }
+
+  public play() {
+    this.intervalId = setInterval(() => this.tick(), 150)
+    this.events.emit('start', this.state)
+  }
+
+  public pause() {
+    clearInterval(this.intervalId)
+    this.intervalId = null
+    this.events.emit('stop', this.state)
+  }
+
+  public playpause() {
+    if (this.intervalId) {
+      this.pause()
+    } else {
+      this.play()
+    }
   }
 
   public tick() {
@@ -141,6 +168,8 @@ export default class Game {
         this.right()
       } else if (['NumpadAdd'].includes(code)) {
         this.size++
+      } else if (['Enter'].includes(code)) {
+        this.playpause()
       }
     })
   }

@@ -15,17 +15,17 @@
 
   <div class="flex items-center space-x-12">
     <nav
+      x-data
       class="grid gap-4 select-none text-5xl font-bold text-gray-800"
-      style='grid-template: ". up ." "left down right"'>
-      <template x-data x-for="(arrow, dir) in {up: '↑', down: '↓', left: '←', right: '→'}">
+      style='grid-template: ". up ." "left playpause right" ". down ."'>
+      <template x-for="(icon, action) in {up: '⬆️', down: '⬇️', left: '⬅️', right: '➡️', playpause: '⏯️'}">
         <button
           class="
           px-2 py-1 w-12 h-12 flex items-center justify-center border rounded bg-gray-200 cursor-pointer shadow-lg
           transition duration-75 active:translate-y-1 active:shadow"
-          :style="`grid-area:${dir}`"
-          @click="game[dir]()">
-          <kbd x-text="arrow"></kbd>
-        </button>
+          :style="`grid-area:${action}`"
+          @click="game[action]()"
+          x-text="icon"></button>
       </template>
     </nav>
 
@@ -40,8 +40,8 @@
   </div>
 </header>
 
-<div class="flex-grow overflow-hidden flex justify-center items-stretch p-4">
-  <div class="flex justify-center items-start max-w-full max-h-full" style="aspect-ratio: 20/15">
+<div class="flex-grow overflow-hidden flex justify-center items-start p-4">
+  <div class="flex justify-center items-start max-w-full max-h-full relative" style="aspect-ratio: 20/15">
     <canvas
       id="sprites"
       x-data="renderer"

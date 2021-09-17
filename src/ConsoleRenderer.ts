@@ -10,6 +10,9 @@ export default class ConsoleRenderer extends BaseRenderer {
     super()
 
     this.init(game)
+
+    game.events.on('start', () => console.log('▶️ Game started'))
+    game.events.on('stop', () => console.log('⏸️ Game paused'))
   }
 
   public render({ snake, apple }: GameState) {
