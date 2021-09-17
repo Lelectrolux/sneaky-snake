@@ -50,7 +50,7 @@ export default class SpriteRenderer extends CanvasRenderer {
 
   protected drawBoard() {
     for (let x = 0; x < this.cols; x++) {
-      for (let y = 0; y < this.cols; y++) {
+      for (let y = 0; y < this.rows; y++) {
         this.ctx.fillStyle = (x + y) % 2 === 0 ? '#d9f99d' : '#ecfccb'
         this.ctx.fillRect(x * sprite.size, y * sprite.size, sprite.size, sprite.size)
       }
