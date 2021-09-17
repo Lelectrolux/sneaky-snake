@@ -12,7 +12,7 @@ export enum Direction {
 
 export type Position = { x: number, y: number }
 export type Snake = (Position & { direction: Direction })[]
-export type GameState = { direction: Direction, snake: Snake, apple: Position, size: number, running: boolean }
+export type GameState = { direction: Direction, snake: Snake, apple: Position, score: number, running: boolean }
 export type GameEvents = { afterTick: GameState, directionChanged: GameState, appleEaten: GameState, start: GameState, stop: GameState }
 
 export default class Game {
@@ -43,7 +43,7 @@ export default class Game {
       direction: this.direction,
       snake: [...this.snake],
       apple: this.apple,
-      size: this.size,
+      score: this.size - 3,
       running: this.running,
     }
   }

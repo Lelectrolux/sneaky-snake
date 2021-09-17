@@ -89,17 +89,17 @@ export default class SpriteRenderer extends CanvasRenderer {
     )
   }
 
-  protected drawScore(state: GameState) {
+  protected drawScore({ score }: GameState) {
     this.ctx.clearRect(0, this.rows * sprite.size, this.cols * sprite.size, sprite.size)
     this.ctx.font = `${sprite.size * .75}px monospace`
     this.ctx.fillStyle = 'black'
     this.ctx.textAlign = 'right'
     this.ctx.textBaseline = 'top'
     this.ctx.fillText(
-        `${state.size}`,
+        `${score}`,
         (this.cols - 1) * sprite.size,
         (this.rows + .25) * sprite.size
     )
-    this.drawApple({x: this.cols - 1, y: this.rows})
+    this.drawApple({ x: this.cols - 1, y: this.rows })
   }
 }

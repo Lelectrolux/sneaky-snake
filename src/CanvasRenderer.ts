@@ -32,5 +32,5 @@ export default abstract class CanvasRenderer extends BaseRenderer {
   protected abstract drawBoard();
   protected abstract drawSnake(snake: Snake);
   protected abstract drawApple(position: Position);
-  protected drawScore(state: GameState) {}
+  protected abstract drawScore(state: GameState);
 }

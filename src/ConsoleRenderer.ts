@@ -11,6 +11,7 @@ export default class ConsoleRenderer extends BaseRenderer {
 
     this.init(game)
 
+    game.events.on('appleEaten', ({ score }) => console.log(`🍎\t${score} eaten`))
     game.events.on('start', () => console.log('▶️ Game started'))
     game.events.on('stop', () => console.log('⏸️ Game paused'))
   }

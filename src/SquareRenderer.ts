@@ -59,17 +59,17 @@ export default class SquareRenderer extends CanvasRenderer {
     }
   }
 
-  protected drawScore(state: GameState) {
+  protected drawScore({ score }: GameState) {
     this.ctx.clearRect(0, this.rows * cell, this.cols * cell, cell)
     this.ctx.font = `${cell * .8}px monospace`
     this.ctx.fillStyle = 'black'
     this.ctx.textAlign = 'right'
     this.ctx.textBaseline = 'top'
     this.ctx.fillText(
-        `${state.size}`,
+        `${score}`,
         (this.cols - 1) * cell,
         (this.rows + .2) * cell
     )
-    this.drawApple({x: this.cols - 1, y: this.rows})
+    this.drawApple({ x: this.cols - 1, y: this.rows })
   }
 }
