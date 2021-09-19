@@ -103,14 +103,14 @@ export default class SpriteRenderer {
     if (lost) {
       this.ctx.filter = 'grayscale(100%)'
     }
-    snake.forEach((position, i) => {
+    snake.reverse().forEach((position, i) => {
       let type;
-      if (i === 0) {
+      if (i === snake.length - 1) {
         type = `head${position.direction}`
-      } else if (i === snake.length - 1) {
-        type = `tail${snake[i - 1].direction}`
+      } else if (i === 0) {
+        type = `tail${snake[i + 1].direction}`
       } else {
-        type = position.direction + snake[i - 1].direction
+        type = position.direction + snake[i + 1].direction
       }
       this.drawSprite(type, position)
     })
