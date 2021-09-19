@@ -71,6 +71,8 @@ export default class AsciiRenderer {
 
     let divider = `+${repeat('―', this.cols)}+`
 
+    let status = lost ? 'Game Over' : running ? 'Playing' : 'Paused'
+
     this.pre.innerHTML = [
       `[${span(directionToArrow(direction), this.classes.head)}][${span(score, this.classes.apple)}][${span(ticks, this.classes.board)}]`,
 
@@ -78,7 +80,9 @@ export default class AsciiRenderer {
 
       ...data.map(line => `|${span(line.join(''), this.classes.board)}|`),
 
-      `${divider}</span>`
+      `${divider}</span>`,
+
+      `[${status}]`,
     ].join('\n')
   }
 }

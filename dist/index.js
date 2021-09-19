@@ -5297,11 +5297,13 @@ class AsciiRenderer {
         });
         data[apple.y][apple.x] = span('@', lost || running ? this.classes.apple : '');
         let divider = `+${repeat('―', this.cols)}+`;
+        let status = lost ? 'Game Over' : running ? 'Playing' : 'Paused';
         this.pre.innerHTML = [
             `[${span(directionToArrow(direction), this.classes.head)}][${span(score, this.classes.apple)}][${span(ticks, this.classes.board)}]`,
             `<span class="${lost ? this.classes.apple : running ? '' : this.classes.board}">${divider}`,
             ...data.map(line => `|${span(line.join(''), this.classes.board)}|`),
-            `${divider}</span>`
+            `${divider}</span>`,
+            `[${status}]`,
         ].join('\n');
     }
 }

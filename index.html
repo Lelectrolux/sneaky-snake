@@ -39,21 +39,21 @@
   </nav>
 </header>
 
-<div class="flex-grow overflow-hidden flex justify-center items-start p-4">
+<div class="flex-grow overflow-hidden flex justify-around items-start p-4">
   <canvas
     x-init="new SpriteRenderer($store.game, $el)"
     @click="$store.game.play()"
     class="max-h-full max-w-full"
   ></canvas>
-  <!--<pre
+  <pre
     x-init="new AsciiRenderer($store.game, $el)"
     class="leading-none select-none tracking-[.45em] text-4xl before:content-[aze]"
-  ></pre>-->
+  ></pre>
 </div>
 
-<!--<pre
+<pre
   style="tab-size: 3; grid-area: logger"
-  class="overflow-y-auto divide-y-2 border-r-2 no-scrollbar h-screen fixed"
+  class="overflow-y-auto divide-y-2 border-r-2 no-scrollbar h-screen fixed opacity-25 hover:opacity-100"
   x-init="new ConsoleRenderer(
     $store.game,
     text => {
@@ -66,7 +66,7 @@
       }
     }
   )"
-></pre>-->
+></pre>
 
 <script>
   document.addEventListener('alpine:init', () => {
