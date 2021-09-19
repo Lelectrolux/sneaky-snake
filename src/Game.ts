@@ -12,8 +12,25 @@ export enum Direction {
 
 export type Position = { x: number, y: number }
 export type Snake = (Position & { direction: Direction })[]
-export type GameState = { direction: Direction, snake: Snake, apple: Position, score: number, running: boolean }
-export type GameEvents = { afterTick: GameState, directionChanged: GameState, appleEaten: GameState, start: GameState, stop: GameState }
+export type GameState = {
+  direction: Direction,
+  snake: Snake,
+  apple: Position,
+  score: number,
+  running: boolean,
+  lost: boolean,
+  ticks: number,
+  touched: Position|null,
+}
+export type GameEvents = {
+  '*': GameState,
+  afterTick: GameState,
+  directionChanged: GameState,
+  appleEaten: GameState,
+  play: GameState,
+  pause: GameState,
+  lost: GameState,
+}
 
 export default class Game {
   readonly cols: number = 20
@@ -30,6 +47,9 @@ export default class Game {
   protected direction: Direction = Direction.Right
   protected size: number
   protected intervalId
+  protected touched: Position|null = null
+  protected lost: boolean = false
+  protected ticks: number = 0
 
   constructor() {
     this.size = this.snake.length
@@ -45,6 +65,9 @@ export default class Game {
       apple: this.apple,
       score: this.size - 3,
       running: this.running,
+      lost: this.lost,
+      ticks: this.ticks,
+      touched: this.touched
     }
   }
 
@@ -69,14 +92,28 @@ export default class Game {
   }
 
   public play() {
-    this.intervalId = setInterval(() => this.tick(), 150)
-    this.events.emit('start', this.state)
+    if (! this.lost && ! this.running) {
+      this.start()
+      this.events.emit('play', this.state)
+    }
   }
 
   public pause() {
+    if (! this.lost && this.running) {
+      this.stop()
+      this.events.emit('pause', this.state)
+    }
+  }
+
+  public start() {
+    if (! this.intervalId) {
+      this.intervalId = setInterval(() => this.tick(), 150)
+    }
+  }
+
+  public stop() {
     clearInterval(this.intervalId)
     this.intervalId = null
-    this.events.emit('stop', this.state)
   }
 
   public playpause() {
@@ -96,8 +133,20 @@ export default class Game {
         || next.y === -1 // top wall
         || next.y === this.rows // down wall
     ) {
+      if (!this.touched) { // 1 frame of grace period
+        this.touched = next
+        this.events.emit('afterTick', this.state)
+      } else {
+        this.stop()
+        this.lost = true
+        this.events.emit('lost', this.state)
+      }
+
       return
     }
+
+    this.ticks++
+    this.touched = null
 
     this.snake.unshift(next)
     if (this.snake.length > this.size) {
@@ -159,17 +208,17 @@ export default class Game {
   protected registerControls() {
     window.addEventListener('keydown', ({ code }) => {
       if (['ArrowUp', 'Numpad8', 'KeyW'].includes(code)) {
-        this.up()
+        this.lost || this.up()
       } else if (['ArrowDown', 'Numpad2', 'KeyS'].includes(code)) {
-        this.down()
+        this.lost || this.down()
       } else if (['ArrowLeft', 'Numpad4', 'KeyA'].includes(code)) {
-        this.left()
+        this.lost || this.left()
       } else if (['ArrowRight', 'Numpad6', 'KeyD'].includes(code)) {
-        this.right()
+        this.lost || this.right()
       } else if (['NumpadAdd'].includes(code)) {
-        this.size++
+        this.lost || this.size++
       } else if (['Enter'].includes(code)) {
-        this.playpause()
+        this.lost || this.playpause()
       }
     })
   }
