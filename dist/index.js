@@ -5540,6 +5540,9 @@ class Game {
             else if (['Enter'].includes(code)) {
                 this.lost || this.playpause();
             }
+            else if (['KeyR'].includes(code)) {
+                this.lost && window.location.reload();
+            }
         });
     }
 }

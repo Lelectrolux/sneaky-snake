@@ -219,6 +219,8 @@ export default class Game {
         this.lost || this.size++
       } else if (['Enter'].includes(code)) {
         this.lost || this.playpause()
+      } else if (['KeyR'].includes(code)) {
+        this.lost && window.location.reload()
       }
     })
   }
