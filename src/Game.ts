@@ -127,7 +127,7 @@ export default class Game {
   public tick() {
     const next = this.nextPosition()
 
-    if (this.snake.some(({ x, y }) => x === next.x && y === next.y) // eat self
+    if (this.snake.slice(0, this.snake.length - 1).some(({ x, y }) => x === next.x && y === next.y) // eat self
         || next.x === -1 // left wall
         || next.x === this.cols // right wall
         || next.y === -1 // top wall
