@@ -59,16 +59,16 @@ export default class Game {
   }
 
   public get state(): GameState {
-    return {
+    return Object.freeze({
       direction: this.direction,
-      snake: [...this.snake],
+      snake: Object.freeze([...this.snake]) as Snake,
       apple: this.apple,
       score: this.size - 3,
       running: this.running,
       lost: this.lost,
       ticks: this.ticks,
-      touched: this.touched
-    }
+      touch: this.touch
+    })
   }
 
   public get running(): boolean {
