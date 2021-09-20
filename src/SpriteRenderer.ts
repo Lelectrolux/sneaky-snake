@@ -87,11 +87,11 @@ export default class SpriteRenderer {
 
   protected createBackgroundImage() {
     // checkerboard
-    this.ctx.fillStyle = '#ecfccb'
+    this.ctx.fillStyle = '#f9fafb'
     this.ctx.fillRect(
-        sprite.size * .5, sprite.size * 2.5,
-        this.canvas.width - sprite.size, this.canvas.height - (3 * sprite.size))
-    this.ctx.fillStyle = '#d9f99d'
+        sprite.size * .5, sprite.size * .5,
+        this.canvas.width - sprite.size, this.canvas.height - (.5 * sprite.size))
+    this.ctx.fillStyle = '#f3f4f6'
     for (let x = 0; x < this.cols; x++) {
       for (let y = 0; y < this.rows; y++) {
         if ((x + y) % 2 === 0) {
@@ -100,6 +100,7 @@ export default class SpriteRenderer {
       }
     }
 
+    this.ctx.filter = 'hue-rotate(-90deg)'
     // vertical border
     for (let i = 1; i < this.rows + 3; i++) {
       this.drawSprite(`${Direction.Up}${Direction.Up}`, { x: 0, y: i })
@@ -125,6 +126,7 @@ export default class SpriteRenderer {
 
     // border head
     this.drawSprite(`head${Direction.Left}`, { x: 0, y: 2 })
+    this.ctx.filter = 'none'
 
     this.ctx.restore()
     this.ctx.fillText('🏆', sprite.size, 1.2 * sprite.size, sprite.size)
