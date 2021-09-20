@@ -1,4 +1,4 @@
-import Game, { Direction, GameState, Position } from "./Game"
+import Game, { Direction, GameState, Position, SnakeSegment } from "./Game"
 
 function createSprite() {
   let sprite = {
@@ -85,6 +85,11 @@ export default class SpriteRenderer {
     game.events.on('directionChanged', state => this.drawDirection(state.direction))
   }
 
+  public render(state: GameState) {
+    this.drawStats(state)
+    this.drawSprites(state)
+  }
+
   protected createBackgroundImage() {
     // checkerboard
     this.ctx.fillStyle = '#f9fafb'
@@ -139,17 +144,19 @@ export default class SpriteRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
-  public render(state: GameState) {
-    this.drawStats(state)
-    this.drawSprites(state)
-  }
-
-  protected drawSprites({ snake, lost, apple }: GameState) {
+  protected drawSprites({ snake, lost, touch, apple, size }: GameState) {
     this.ctx.setTransform(1, 0, 0, 1, sprite.size, 3 * sprite.size)
     this.ctx.clearRect(0, 0, this.cols * sprite.size, this.rows * sprite.size)
 
+    if (touch) {
+      this.ctx.filter = 'grayscale(60%)'
+    }
+
     if (lost) {
-      this.ctx.filter = 'grayscale(100%)'
+      snake = [touch as SnakeSegment, ...snake]
+      if (snake.length > size) {
+        snake.length--
+      }
     }
 
     for (let i = snake.length - 1; i >= 0; i--) {

@@ -13,6 +13,7 @@ type Classes = {
 function span(text: string | number, classes: string) {
   return `<span class="${classes}">${text}</span>`
 }
+
 function directionToArrow(direction: Direction): string {
   return {
     [Direction.Up]: '↑',
@@ -51,7 +52,7 @@ export default class AsciiRenderer {
     game.events.on('play', state => this.render(state))
   }
 
-  public render({ snake, apple, score, ticks, direction, lost, running }: GameState) {
+  public render({ snake, apple, score, ticks, touch, direction, lost, running }: GameState) {
     let data = new Array(this.rows * this.cols).fill('·')
     data = chunk(data, this.cols)
 
@@ -63,7 +64,11 @@ export default class AsciiRenderer {
       } else { // body
         data[y][x] = span(
             directionToArrow(dir !== snake[i - 1].direction ? snake[i - 1].direction : dir),
-            lost || running ? this.classes.snake : '')
+            (touch && touch.x === x && touch.y === y)
+                ? this.classes.apple
+                : lost || running
+                    ? this.classes.snake
+                    : '')
       }
     })
 

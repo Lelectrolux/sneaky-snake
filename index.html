@@ -14,8 +14,8 @@
     }
 
     .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
     }
   </style>
 </head>
@@ -45,10 +45,10 @@
     @click="$store.game.play()"
     class="max-h-full max-w-full"
   ></canvas>
-  <!--<pre
+  <pre
     x-init="new AsciiRenderer($store.game, $el)"
     class="leading-none select-none tracking-[.45em] text-4xl before:content-[aze]"
-  ></pre>-->
+  ></pre>
 </div>
 
 <!--<pre
@@ -70,7 +70,7 @@
 
 <script>
   document.addEventListener('alpine:init', () => {
-    Alpine.store('game', new Game())
+    Alpine.store('game', new Game({ boxed: true, speed: 150 }))
   })
 </script>
 </body>

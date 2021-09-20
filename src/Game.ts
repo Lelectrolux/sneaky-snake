@@ -11,16 +11,18 @@ export enum Direction {
 }
 
 export type Position = { x: number, y: number }
-export type Snake = (Position & { direction: Direction })[]
+export type SnakeSegment = Position & { direction: Direction }
+export type Snake = SnakeSegment[]
 export type GameState = {
   direction: Direction,
   snake: Snake,
   apple: Position,
   score: number,
+  size: number,
   running: boolean,
   lost: boolean,
   ticks: number,
-  touched: Position|null,
+  touch: SnakeSegment | false,
 }
 export type GameEvents = {
   '*': GameState,
@@ -30,6 +32,12 @@ export type GameEvents = {
   play: GameState,
   pause: GameState,
   lost: GameState,
+}
+type Options = {
+  eatSelf: boolean,
+  boxed: boolean,
+  speed: number,
+  extraFrame: boolean
 }
 
 export default class Game {
@@ -47,11 +55,13 @@ export default class Game {
   protected direction: Direction = Direction.Right
   protected size: number
   protected intervalId
-  protected touched: Position|null = null
+  protected touch: SnakeSegment | false = false
   protected lost: boolean = false
   protected ticks: number = 0
+  protected options: Options
 
-  constructor() {
+  constructor(options: Options | {} = {}) {
+    this.options = { eatSelf: true, boxed: true, speed: 150, extraFrame: true, ...options }
     this.size = this.snake.length
     this.newApple()
     this.events = mitt()
@@ -64,6 +74,7 @@ export default class Game {
       snake: Object.freeze([...this.snake]) as Snake,
       apple: this.apple,
       score: this.size - 3,
+      size: this.size,
       running: this.running,
       lost: this.lost,
       ticks: this.ticks,
@@ -92,22 +103,22 @@ export default class Game {
   }
 
   public play() {
-    if (! this.lost && ! this.running) {
+    if (!this.lost && !this.running) {
       this.start()
       this.events.emit('play', this.state)
     }
   }
 
   public pause() {
-    if (! this.lost && this.running) {
+    if (!this.lost && this.running) {
       this.stop()
       this.events.emit('pause', this.state)
     }
   }
 
   public start() {
-    if (! this.intervalId) {
-      this.intervalId = setInterval(() => this.tick(), 150)
+    if (!this.intervalId) {
+      this.intervalId = setInterval(() => this.tick(), this.options.speed)
     }
   }
 
@@ -127,16 +138,12 @@ export default class Game {
   public tick() {
     const next = this.nextPosition()
 
-    if (this.snake.slice(0, this.snake.length - 1).some(({ x, y }) => x === next.x && y === next.y) // eat self
-        || next.x === -1 // left wall
-        || next.x === this.cols // right wall
-        || next.y === -1 // top wall
-        || next.y === this.rows // down wall
-    ) {
-      if (!this.touched) { // 1 frame of grace period
-        this.touched = next
+    if (!this.validateNextPosition(next)) {
+      if (this.options.extraFrame && !this.touch) { // 1 frame of grace period
+        this.touch = next
         this.events.emit('afterTick', this.state)
       } else {
+        this.touch = next
         this.stop()
         this.lost = true
         this.events.emit('lost', this.state)
@@ -146,7 +153,7 @@ export default class Game {
     }
 
     this.ticks++
-    this.touched = null
+    this.touch = false
 
     this.snake.unshift(next)
     if (this.snake.length > this.size) {
@@ -178,7 +185,7 @@ export default class Game {
     return false
   }
 
-  protected nextPosition() {
+  protected nextPosition(): SnakeSegment {
     let next = { ...this.snake[0], direction: this.direction }
 
     if (next.direction === Direction.Up) {
@@ -191,9 +198,28 @@ export default class Game {
       next.x++
     }
 
+    if (!this.options.boxed) {
+      next.x = (next.x + this.cols) % this.cols
+      next.y = (next.y + this.rows) % this.rows
+    }
+
     Object.freeze(next);
 
     return next
+  }
+
+  protected validateNextPosition({ x, y }: Position): boolean {
+    if (this.options.eatSelf
+        && this.snake.slice(0, this.snake.length - 1).some(pos => x === pos.x && y === pos.y)) {
+      return false
+    }
+
+    return !(this.options.boxed &&
+        (x === -1 // left wall
+            || x === this.cols // right wall
+            || y === -1 // top wall
+            || y === this.rows // down wall
+        ));
   }
 
   protected newApple() {
@@ -217,7 +243,7 @@ export default class Game {
         this.lost || this.right()
       } else if (['NumpadAdd'].includes(code)) {
         this.lost || this.size++
-      } else if (['Enter'].includes(code)) {
+      } else if (['Enter', 'Space'].includes(code)) {
         this.lost || this.playpause()
       } else if (['KeyR'].includes(code)) {
         this.lost && window.location.reload()

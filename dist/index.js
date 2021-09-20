@@ -5284,7 +5284,7 @@ class AsciiRenderer {
         game.events.on('pause', state => this.render(state));
         game.events.on('play', state => this.render(state));
     }
-    render({ snake, apple, score, ticks, direction, lost, running }) {
+    render({ snake, apple, score, ticks, touch, direction, lost, running }) {
         let data = new Array(this.rows * this.cols).fill('·');
         data = chunk(data, this.cols);
         snake.forEach(({ x, y, direction: dir }, i) => {
@@ -5292,7 +5292,11 @@ class AsciiRenderer {
                 data[y][x] = span(directionToArrow(direction), lost || running ? this.classes.head : '');
             }
             else { // body
-                data[y][x] = span(directionToArrow(dir !== snake[i - 1].direction ? snake[i - 1].direction : dir), lost || running ? this.classes.snake : '');
+                data[y][x] = span(directionToArrow(dir !== snake[i - 1].direction ? snake[i - 1].direction : dir), (touch && touch.x === x && touch.y === y)
+                    ? this.classes.apple
+                    : lost || running
+                        ? this.classes.snake
+                        : '');
             }
         });
         data[apple.y][apple.x] = span('@', lost || running ? this.classes.apple : '');
@@ -5376,7 +5380,7 @@ var Direction;
     Direction["Right"] = "\u27A1\uFE0F";
 })(Direction || (Direction = {}));
 class Game {
-    constructor() {
+    constructor(options = {}) {
         this.cols = 20;
         this.rows = 15;
         this.snake = [
@@ -5385,25 +5389,27 @@ class Game {
             Object.freeze({ x: 0, y: 0, direction: Direction.Right }),
         ];
         this.direction = Direction.Right;
-        this.touched = null;
+        this.touch = false;
         this.lost = false;
         this.ticks = 0;
+        this.options = { eatSelf: true, boxed: true, speed: 150, extraFrame: true, ...options };
         this.size = this.snake.length;
         this.newApple();
         this.events = (0,mitt__WEBPACK_IMPORTED_MODULE_0__.default)();
         this.registerControls();
     }
     get state() {
-        return {
+        return Object.freeze({
             direction: this.direction,
-            snake: [...this.snake],
+            snake: Object.freeze([...this.snake]),
             apple: this.apple,
             score: this.size - 3,
+            size: this.size,
             running: this.running,
             lost: this.lost,
             ticks: this.ticks,
-            touched: this.touched
-        };
+            touch: this.touch
+        });
     }
     get running() {
         return !!this.intervalId;
@@ -5434,7 +5440,7 @@ class Game {
     }
     start() {
         if (!this.intervalId) {
-            this.intervalId = setInterval(() => this.tick(), 150);
+            this.intervalId = setInterval(() => this.tick(), this.options.speed);
         }
     }
     stop() {
@@ -5451,17 +5457,13 @@ class Game {
     }
     tick() {
         const next = this.nextPosition();
-        if (this.snake.some(({ x, y }) => x === next.x && y === next.y) // eat self
-            || next.x === -1 // left wall
-            || next.x === this.cols // right wall
-            || next.y === -1 // top wall
-            || next.y === this.rows // down wall
-        ) {
-            if (!this.touched) { // 1 frame of grace period
-                this.touched = next;
+        if (!this.validateNextPosition(next)) {
+            if (this.options.extraFrame && !this.touch) { // 1 frame of grace period
+                this.touch = next;
                 this.events.emit('afterTick', this.state);
             }
             else {
+                this.touch = next;
                 this.stop();
                 this.lost = true;
                 this.events.emit('lost', this.state);
@@ -5469,7 +5471,7 @@ class Game {
             return;
         }
         this.ticks++;
-        this.touched = null;
+        this.touch = false;
         this.snake.unshift(next);
         if (this.snake.length > this.size) {
             this.snake.pop();
@@ -5509,8 +5511,24 @@ class Game {
         else if (next.direction === Direction.Right) {
             next.x++;
         }
+        if (!this.options.boxed) {
+            next.x = (next.x + this.cols) % this.cols;
+            next.y = (next.y + this.rows) % this.rows;
+        }
         Object.freeze(next);
         return next;
+    }
+    validateNextPosition({ x, y }) {
+        if (this.options.eatSelf
+            && this.snake.slice(0, this.snake.length - 1).some(pos => x === pos.x && y === pos.y)) {
+            return false;
+        }
+        return !(this.options.boxed &&
+            (x === -1 // left wall
+                || x === this.cols // right wall
+                || y === -1 // top wall
+                || y === this.rows // down wall
+            ));
     }
     newApple() {
         do {
@@ -5537,7 +5555,7 @@ class Game {
             else if (['NumpadAdd'].includes(code)) {
                 this.lost || this.size++;
             }
-            else if (['Enter'].includes(code)) {
+            else if (['Enter', 'Space'].includes(code)) {
                 this.lost || this.playpause();
             }
             else if (['KeyR'].includes(code)) {
@@ -5629,11 +5647,15 @@ class SpriteRenderer {
         game.events.on('lost', state => this.render(state));
         game.events.on('directionChanged', state => this.drawDirection(state.direction));
     }
+    render(state) {
+        this.drawStats(state);
+        this.drawSprites(state);
+    }
     createBackgroundImage() {
         // checkerboard
-        this.ctx.fillStyle = '#ecfccb';
-        this.ctx.fillRect(sprite.size * .5, sprite.size * 2.5, this.canvas.width - sprite.size, this.canvas.height - (3 * sprite.size));
-        this.ctx.fillStyle = '#d9f99d';
+        this.ctx.fillStyle = '#f9fafb';
+        this.ctx.fillRect(sprite.size * .5, sprite.size * .5, this.canvas.width - sprite.size, this.canvas.height - (.5 * sprite.size));
+        this.ctx.fillStyle = '#f3f4f6';
         for (let x = 0; x < this.cols; x++) {
             for (let y = 0; y < this.rows; y++) {
                 if ((x + y) % 2 === 0) {
@@ -5641,6 +5663,7 @@ class SpriteRenderer {
                 }
             }
         }
+        this.ctx.filter = 'hue-rotate(-90deg)';
         // vertical border
         for (let i = 1; i < this.rows + 3; i++) {
             this.drawSprite(`${_Game__WEBPACK_IMPORTED_MODULE_0__.Direction.Up}${_Game__WEBPACK_IMPORTED_MODULE_0__.Direction.Up}`, { x: 0, y: i });
@@ -5662,6 +5685,7 @@ class SpriteRenderer {
         this.drawSprite(`${_Game__WEBPACK_IMPORTED_MODULE_0__.Direction.Down}${_Game__WEBPACK_IMPORTED_MODULE_0__.Direction.Left}`, { x: this.cols + 1, y: this.rows + 3 });
         // border head
         this.drawSprite(`head${_Game__WEBPACK_IMPORTED_MODULE_0__.Direction.Left}`, { x: 0, y: 2 });
+        this.ctx.filter = 'none';
         this.ctx.restore();
         this.ctx.fillText('🏆', sprite.size, 1.2 * sprite.size, sprite.size);
         this.ctx.fillText('⏱', (this.canvas.width - (2 * sprite.size)) / 2, 1.2 * sprite.size, sprite.size);
@@ -5670,29 +5694,31 @@ class SpriteRenderer {
         this.canvas.style.backgroundSize = `100%`;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    render(state) {
-        this.drawStats(state);
-        this.drawSprites(state);
-    }
-    drawSprites({ snake, lost, apple }) {
+    drawSprites({ snake, lost, touch, apple, size }) {
         this.ctx.setTransform(1, 0, 0, 1, sprite.size, 3 * sprite.size);
         this.ctx.clearRect(0, 0, this.cols * sprite.size, this.rows * sprite.size);
-        if (lost) {
-            this.ctx.filter = 'grayscale(100%)';
+        if (touch) {
+            this.ctx.filter = 'grayscale(60%)';
         }
-        snake.reverse().forEach((position, i) => {
-            let type;
-            if (i === snake.length - 1) {
-                type = `head${position.direction}`;
+        if (lost) {
+            snake = [touch, ...snake];
+            if (snake.length > size) {
+                snake.length--;
             }
-            else if (i === 0) {
-                type = `tail${snake[i + 1].direction}`;
+        }
+        for (let i = snake.length - 1; i >= 0; i--) {
+            let type;
+            if (i === 0) {
+                type = `head${snake[i].direction}`;
+            }
+            else if (i === snake.length - 1) {
+                type = `tail${snake[i - 1].direction}`;
             }
             else {
-                type = position.direction + snake[i + 1].direction;
+                type = snake[i].direction + snake[i - 1].direction;
             }
-            this.drawSprite(type, position);
-        });
+            this.drawSprite(type, snake[i]);
+        }
         this.ctx.filter = 'none';
         this.drawSprite('apple', apple);
     }
