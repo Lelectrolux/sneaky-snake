@@ -41,8 +41,8 @@ type Options = {
 }
 
 export default class Game {
-  readonly cols: number = 20
-  readonly rows: number = 15
+  readonly cols: number
+  readonly rows: number
   readonly events: Emitter<GameEvents>
 
   // @ts-ignore: Property 'apple' has no initializer and is not definitely assigned in the constructor.
@@ -60,8 +60,16 @@ export default class Game {
   protected ticks: number = 0
   protected options: Options
 
-  constructor(options: Options | {} = {}) {
-    this.options = { eatSelf: true, boxed: true, speed: 150, extraFrame: true, ...options }
+  constructor(cols: number = 20, rows: number = 15, options: Options | {} = {}) {
+    this.cols = cols
+    this.rows = rows
+    this.options = {
+      eatSelf: true,
+      boxed: true,
+      speed: 150,
+      extraFrame: true,
+      ...options
+    }
     this.size = this.snake.length
     this.newApple()
     this.events = mitt()

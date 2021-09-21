@@ -5380,9 +5380,7 @@ var Direction;
     Direction["Right"] = "\u27A1\uFE0F";
 })(Direction || (Direction = {}));
 class Game {
-    constructor(options = {}) {
-        this.cols = 20;
-        this.rows = 15;
+    constructor(cols = 20, rows = 15, options = {}) {
         this.snake = [
             Object.freeze({ x: 2, y: 0, direction: Direction.Right }),
             Object.freeze({ x: 1, y: 0, direction: Direction.Right }),
@@ -5392,7 +5390,15 @@ class Game {
         this.touch = false;
         this.lost = false;
         this.ticks = 0;
-        this.options = { eatSelf: true, boxed: true, speed: 150, extraFrame: true, ...options };
+        this.cols = cols;
+        this.rows = rows;
+        this.options = {
+            eatSelf: true,
+            boxed: true,
+            speed: 150,
+            extraFrame: true,
+            ...options
+        };
         this.size = this.snake.length;
         this.newApple();
         this.events = (0,mitt__WEBPACK_IMPORTED_MODULE_0__.default)();
