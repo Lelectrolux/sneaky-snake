@@ -5390,6 +5390,7 @@ class Game {
         this.touch = false;
         this.lost = false;
         this.ticks = 0;
+        this.score = 0;
         this.cols = cols;
         this.rows = rows;
         this.options = {
@@ -5397,6 +5398,7 @@ class Game {
             boxed: true,
             speed: 150,
             extraFrame: true,
+            growth: 1,
             ...options
         };
         this.size = this.snake.length;
@@ -5409,7 +5411,7 @@ class Game {
             direction: this.direction,
             snake: Object.freeze([...this.snake]),
             apple: this.apple,
-            score: this.size - 3,
+            score: this.score,
             size: this.size,
             running: this.running,
             lost: this.lost,
@@ -5483,7 +5485,8 @@ class Game {
             this.snake.pop();
         }
         if (isMatch(next, this.apple)) {
-            this.size++;
+            this.size += this.options.growth;
+            this.score++;
             this.newApple();
             this.events.emit('appleEaten', this.state);
         }

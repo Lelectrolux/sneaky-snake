@@ -37,7 +37,8 @@ type Options = {
   eatSelf: boolean,
   boxed: boolean,
   speed: number,
-  extraFrame: boolean
+  extraFrame: boolean,
+  growth: number,
 }
 
 export default class Game {
@@ -58,6 +59,7 @@ export default class Game {
   protected touch: SnakeSegment | false = false
   protected lost: boolean = false
   protected ticks: number = 0
+  protected score: number = 0
   protected options: Options
 
   constructor(cols: number = 20, rows: number = 15, options: Options | {} = {}) {
@@ -68,6 +70,7 @@ export default class Game {
       boxed: true,
       speed: 150,
       extraFrame: true,
+      growth: 1,
       ...options
     }
     this.size = this.snake.length
@@ -81,7 +84,7 @@ export default class Game {
       direction: this.direction,
       snake: Object.freeze([...this.snake]) as Snake,
       apple: this.apple,
-      score: this.size - 3,
+      score: this.score,
       size: this.size,
       running: this.running,
       lost: this.lost,
@@ -169,7 +172,8 @@ export default class Game {
     }
 
     if (isMatch(next, this.apple)) {
-      this.size++
+      this.size += this.options.growth
+      this.score++
       this.newApple()
       this.events.emit('appleEaten', this.state)
     }
