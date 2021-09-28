@@ -17,20 +17,24 @@ export default class ConsoleRenderer {
     game.events.on('play', () => this.output('▶️ Play'))
     game.events.on('pause', () => this.output('⏸️ Pause'))
     game.events.on('lost', ({ score, ticks }) => {
-      this.output('⏹️\tStop')
-      this.output(`🏆\tFinished\n🍎\t${score} eaten\n⏱\t${ticks} ticks`)
+      this.output(`⏹️\tGame Over\n🏆\t${score} points\n⏱\t${ticks} ticks`)
     })
   }
 
-  public render({ snake, apple, score, ticks }: GameState) {
-    let appleLog = `🍎\teaten=${score}\n\t${formatCoords(apple)}`
-    let snakeLog = `🐍\tlength=${snake.length}` + snake.reduce((str, cell, i) => {
+  public render({ snake, apple, cherry, score, ticks }: GameState) {
+    let appleLog = `🍎\t${formatCoords(apple)}`
+
+    if (cherry) {
+      appleLog += `\n🍏\t${formatCoords(cherry[0])} ${cherry[1]}`
+    }
+
+    let snakeLog = `🐍\tSegments: ${snake.length}` + snake.reduce((str, cell, i) => {
       if (i === 0 || cell.direction !== snake[i - 1].direction) {
         return str + `\n${cell.direction}\t${formatCoords(cell)}`
       }
       return str + `\n\t${formatCoords(cell)}`
     }, '')
 
-    this.output(`⏱\tticks=${ticks}\n${appleLog}\n${snakeLog}`)
+    this.output(`⏱\tTicks: ${ticks}\n🏆\tScore: ${score}\n${appleLog}\n${snakeLog}`)
   }
 }

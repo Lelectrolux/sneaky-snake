@@ -17,6 +17,7 @@ export type GameState = {
   direction: Direction,
   snake: Snake,
   apple: Position,
+  cherry: [Position, number] | null
   score: number,
   size: number,
   running: boolean,
@@ -39,6 +40,9 @@ type Options = {
   speed: number,
   extraFrame: boolean,
   growth: number,
+  cherryChance: number,
+  cherryTimer: number
+  cherryScore: number
 }
 
 export default class Game {
@@ -48,6 +52,7 @@ export default class Game {
 
   // @ts-ignore: Property 'apple' has no initializer and is not definitely assigned in the constructor.
   protected apple: Position
+  protected cherry: [Position, number] | null = null
   protected snake: Snake = [
     Object.freeze({ x: 2, y: 0, direction: Direction.Right }),
     Object.freeze({ x: 1, y: 0, direction: Direction.Right }),
@@ -71,6 +76,9 @@ export default class Game {
       speed: 150,
       extraFrame: true,
       growth: 1,
+      cherryChance: 1/5,
+      cherryTimer: 15,
+      cherryScore: 5,
       ...options
     }
     this.size = this.snake.length
@@ -84,6 +92,7 @@ export default class Game {
       direction: this.direction,
       snake: Object.freeze([...this.snake]) as Snake,
       apple: this.apple,
+      cherry: this.cherry,
       score: this.score,
       size: this.size,
       running: this.running,
@@ -178,6 +187,19 @@ export default class Game {
       this.events.emit('appleEaten', this.state)
     }
 
+    if (this.cherry) {
+      if (isMatch(next, this.cherry[0])) {
+        this.score += this.options.cherryScore
+        this.cherry = null
+      } else if (this.cherry[1] === 0) {
+        this.cherry = null
+      } else {
+        this.cherry[1]--
+      }
+    } else if (Math.random() < this.options.cherryChance) {
+      this.newcherry()
+    }
+
     this.events.emit('afterTick', this.state)
   }
 
@@ -240,7 +262,18 @@ export default class Game {
         x: Math.floor(Math.random() * this.cols),
         y: Math.floor(Math.random() * this.rows)
       })
-    } while (this.snake.some(matches(this.apple)))
+    } while (isMatch(this.cherry?.[0], this.apple) || this.snake.some(matches(this.apple)))
+  }
+
+  protected newcherry() {
+    let pos
+    do {
+      pos = Object.freeze({
+        x: Math.floor(Math.random() * this.cols),
+        y: Math.floor(Math.random() * this.rows)
+      })
+    } while (isMatch(pos, this.apple) || this.snake.some(matches(pos)))
+    this.cherry = [pos, this.options.cherryTimer]
   }
 
   protected registerControls() {

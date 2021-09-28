@@ -5,6 +5,7 @@ const chunk = require('lodash/chunk.js')
 
 type Classes = {
   apple: string,
+  cherry: string,
   head: string,
   snake: string,
   board: string,
@@ -34,6 +35,7 @@ export default class AsciiRenderer {
       pre: HTMLPreElement,
       classes: Classes = {
         apple: 'text-red-600',
+        cherry: 'text-purple-600',
         head: 'text-green-700',
         snake: 'text-green-500',
         board: 'text-gray-400'
@@ -52,7 +54,7 @@ export default class AsciiRenderer {
     game.events.on('play', state => this.render(state))
   }
 
-  public render({ snake, apple, score, ticks, touch, direction, lost, running }: GameState) {
+  public render({ snake, apple, cherry, score, ticks, touch, direction, lost, running }: GameState) {
     let data = new Array(this.rows * this.cols).fill('·')
     data = chunk(data, this.cols)
 
@@ -73,6 +75,10 @@ export default class AsciiRenderer {
     })
 
     data[apple.y][apple.x] = span('@', lost || running ? this.classes.apple : '')
+
+    if (cherry) {
+      data[cherry[0].y][cherry[0].x] = span('$', lost || running ? this.classes.cherry : '')
+    }
 
     let divider = `+${repeat('―', this.cols)}+`
 

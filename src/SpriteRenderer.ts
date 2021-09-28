@@ -1,35 +1,38 @@
 import Game, { Direction, GameState, Position, SnakeSegment } from "./Game"
 
+const { Up, Right, Down, Left } = Direction
+
 function createSprite() {
   let sprite = {
     img: document.createElement('img'),
     size: 64,
     map: {
       apple: [3, 2],
+      cherry: [3, 3],
 
-      [`head${Direction.Up}`]: [0, 0],
-      [`head${Direction.Down}`]: [0, 1],
-      [`head${Direction.Left}`]: [0, 2],
-      [`head${Direction.Right}`]: [0, 3],
+      [`head${Up}`]: [0, 0],
+      [`head${Right}`]: [0, 1],
+      [`head${Down}`]: [0, 2],
+      [`head${Left}`]: [0, 3],
 
-      [`tail${Direction.Up}`]: [1, 0],
-      [`tail${Direction.Down}`]: [1, 1],
-      [`tail${Direction.Left}`]: [1, 2],
-      [`tail${Direction.Right}`]: [1, 3],
+      [`tail${Up}`]: [1, 0],
+      [`tail${Right}`]: [1, 1],
+      [`tail${Down}`]: [1, 2],
+      [`tail${Left}`]: [1, 3],
 
-      [`${Direction.Up}${Direction.Left}`]: [2, 0],
-      [`${Direction.Up}${Direction.Right}`]: [2, 1],
-      [`${Direction.Down}${Direction.Left}`]: [2, 2],
-      [`${Direction.Down}${Direction.Right}`]: [2, 3],
-      [`${Direction.Left}${Direction.Up}`]: [2, 3],
-      [`${Direction.Right}${Direction.Up}`]: [2, 2],
-      [`${Direction.Left}${Direction.Down}`]: [2, 1],
-      [`${Direction.Right}${Direction.Down}`]: [2, 0],
+      [Up + Right]: [2, 0],
+      [Left + Down]: [2, 0],
+      [Right + Down]: [2, 1],
+      [Up + Left]: [2, 1],
+      [Down + Left]: [2, 2],
+      [Right + Up]: [2, 2],
+      [Left + Up]: [2, 3],
+      [Down + Right]: [2, 3],
 
-      [`${Direction.Up}${Direction.Up}`]: [3, 0],
-      [`${Direction.Down}${Direction.Down}`]: [3, 0],
-      [`${Direction.Left}${Direction.Left}`]: [3, 1],
-      [`${Direction.Right}${Direction.Right}`]: [3, 1],
+      [Up + Up]: [3, 0],
+      [Down + Down]: [3, 0],
+      [Left + Left]: [3, 1],
+      [Right + Right]: [3, 1],
     } as Record<string, [number, number]>
   }
 
@@ -108,29 +111,29 @@ export default class SpriteRenderer {
     this.ctx.filter = 'hue-rotate(-90deg)'
     // vertical border
     for (let i = 1; i < this.rows + 3; i++) {
-      this.drawSprite(`${Direction.Up}${Direction.Up}`, { x: 0, y: i })
-      this.drawSprite(`${Direction.Up}${Direction.Up}`, { x: this.cols + 1, y: i })
+      this.drawSprite(Up + Up, { x: 0, y: i })
+      this.drawSprite(Up + Up, { x: this.cols + 1, y: i })
     }
 
     // horizontal border
     for (let i = 1; i < this.cols + 1; i++) {
-      this.drawSprite(`${Direction.Right}${Direction.Right}`, { x: i, y: 0 })
-      this.drawSprite(`${Direction.Right}${Direction.Right}`, { x: i, y: 2 })
-      this.drawSprite(`${Direction.Right}${Direction.Right}`, { x: i, y: this.rows + 3 })
+      this.drawSprite(Right + Right, { x: i, y: 0 })
+      this.drawSprite(Right + Right, { x: i, y: 2 })
+      this.drawSprite(Right + Right, { x: i, y: this.rows + 3 })
     }
 
     this.ctx.clearRect((this.cols + 1) * sprite.size, 2 * sprite.size, sprite.size, sprite.size)
-    this.drawSprite(`tail${Direction.Down}`, { x: this.cols + 1, y: 2 })
+    this.drawSprite(`tail${Down}`, { x: this.cols + 1, y: 2 })
 
     // border corners
-    this.drawSprite(`${Direction.Up}${Direction.Right}`, { x: 0, y: 0 })
-    this.drawSprite(`${Direction.Up}${Direction.Left}`, { x: this.cols + 1, y: 0 })
-    this.drawSprite(`${Direction.Down}${Direction.Left}`, { x: this.cols + 1, y: 2 })
-    this.drawSprite(`${Direction.Down}${Direction.Right}`, { x: 0, y: this.rows + 3 })
-    this.drawSprite(`${Direction.Down}${Direction.Left}`, { x: this.cols + 1, y: this.rows + 3 })
+    this.drawSprite(Up + Right, { x: 0, y: 0 })
+    this.drawSprite(Up + Left, { x: this.cols + 1, y: 0 })
+    this.drawSprite(Down + Left, { x: this.cols + 1, y: 2 })
+    this.drawSprite(Down + Right, { x: 0, y: this.rows + 3 })
+    this.drawSprite(Down + Left, { x: this.cols + 1, y: this.rows + 3 })
 
     // border head
-    this.drawSprite(`head${Direction.Left}`, { x: 0, y: 2 })
+    this.drawSprite(`head${Left}`, { x: 0, y: 2 })
     this.ctx.filter = 'none'
 
     this.ctx.restore()
@@ -144,7 +147,7 @@ export default class SpriteRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
-  protected drawSprites({ snake, lost, touch, apple, size }: GameState) {
+  protected drawSprites({ snake, lost, touch, apple, cherry, size }: GameState) {
     this.ctx.setTransform(1, 0, 0, 1, sprite.size, 3 * sprite.size)
     this.ctx.clearRect(0, 0, this.cols * sprite.size, this.rows * sprite.size)
 
@@ -173,6 +176,13 @@ export default class SpriteRenderer {
     this.ctx.filter = 'none'
 
     this.drawSprite('apple', apple)
+
+    if (cherry) {
+      let grayscale = (10 - Math.min(cherry[1], 10)) * 10
+      this.ctx.filter = `grayscale(${grayscale}%)`
+      this.drawSprite('cherry', cherry[0])
+      this.ctx.filter = 'none'
+    }
   }
 
   protected drawSprite(type: string, position: Position) {
