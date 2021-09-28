@@ -25,7 +25,7 @@ export default class ConsoleRenderer {
     let appleLog = `🍎\t${formatCoords(apple)}`
 
     if (cherry) {
-      appleLog += `\n🍏\t${formatCoords(cherry[0])} ${cherry[1]}`
+      appleLog += `\n🍒\t${formatCoords(cherry[0])} ${cherry[1]}`
     }
 
     let snakeLog = `🐍\tSegments: ${snake.length}` + snake.reduce((str, cell, i) => {
